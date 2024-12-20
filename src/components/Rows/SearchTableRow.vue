@@ -21,7 +21,7 @@ function addToStorage(){
 }
 </script>
 <template>
-<tr class="control">
+<tr class="control" v-if="result.name">
     <td>{{ result.name }}</td>
     <td>{{ result.country }}</td>
     <td>{{ result.lat }}</td>    
