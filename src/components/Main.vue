@@ -25,11 +25,8 @@ function updateTable(){
   storage = localStorage.getItem("SavedForecasts")
   if(typeof storage === 'string'){
     storedLocations = storage
-    console.log(locations)
     locations.value = [['','']]
     locations.value = JSON.parse(storedLocations)
-    console.log(JSON.parse(storedLocations))
-    console.log(locations)
     updateCount.value++
   }
 }

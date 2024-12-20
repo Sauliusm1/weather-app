@@ -57,7 +57,7 @@ else{
     else{
         if(searchMode.value==='Coordinates'){
             //TODO: Better coordinate parsing
-            console.log(formData.text)
+
             let coordinates: string[]
             coordinates = formData.text.split(" ")
 
@@ -73,7 +73,6 @@ else{
         }
     }
 }
-console.log(formData);
 
 }
 function storageUpdated(){

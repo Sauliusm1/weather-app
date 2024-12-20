@@ -40,7 +40,6 @@ function removeFromStorage(index : number){
         forecasts = storage
         locations = JSON.parse(forecasts)
         location = locations[index]
-        console.log(location)
         locations.splice(index,1)
         localStorage.setItem("SavedForecasts",JSON.stringify(locations))
         emit('updated')
