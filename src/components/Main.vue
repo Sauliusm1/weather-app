@@ -1,25 +1,39 @@
 <script setup lang="ts">
-import axios from 'axios'
 import {ref, onMounted } from 'vue';
 import SearchModal from './SearchModal.vue';
+import WeatherTableRow from './Rows/WeatherTableRow.vue';
 const cityName = 'kaunas'
+var locations = ref([['','']])
+var updateCount = ref(0)
 var isSearchModalVisable = ref(false)
+onMounted(() => {
+  console.log(updateCount.value)
+    if(updateCount.value===0){
+      console.log("Updated on mount")
+      updateTable()
+    }
+})
 function showSearchModal(){
   isSearchModalVisable.value = true
 }
 function closeSearchModal(){
   isSearchModalVisable.value = false
 }
-function updateData(){
-axios({
-  method: 'get',
-  url: `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${import.meta.env.VITE_API_KEY}`,
-  responseType: 'json'
-})
-  .then(function (response) {
-    console.log(response.data)
-  });
+function updateTable(){
+  let storage: string | null
+  let storedLocations: string
+  storage = localStorage.getItem("SavedForecasts")
+  if(typeof storage === 'string'){
+    storedLocations = storage
+    console.log(locations)
+    locations.value = [['','']]
+    locations.value = JSON.parse(storedLocations)
+    console.log(JSON.parse(storedLocations))
+    console.log(locations)
+    updateCount.value++
+  }
 }
+
 </script>
 
 <template>
@@ -32,18 +46,40 @@ axios({
   <body>
   <section class="section">
     <div class="container">
-      <div><button class="button is-primary" @click="showSearchModal">Add Forecast</button></div>
-      <h1 class="title">
-        Hello World
-      </h1>
-      <p class="subtitle">
-        My first website with <strong>Bulma</strong>!
-      </p>
+      <div class="is-grouped">
+        <button class="button is-primary" @click="showSearchModal">Add Forecast</button>
+        <button class="button is-danger" @click="updateTable">Update Table</button>
+      </div>
+      
+      <table class="table ">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Country</th>
+                <th><abbr title="Temperature">Temp</abbr></th>
+                <th><abbr title="Humidty">Hum</abbr></th>
+                <th><abbr title="Wind speed">Wind</abbr></th>
+                <th><abbr title="Pressure">Press</abbr></th>
+                <th><abbr title="Sunrise">Rises</abbr></th>
+                <th><abbr title="Sunset">Sets</abbr></th>
+                <th>Conditions</th>
+                <th>Control</th>
+            </tr>
+        </thead>
+        <tbody>
+          <WeatherTableRow  v-for="(location) in locations"
+          :location="location"
+          :updateCount="updateCount">
+          </WeatherTableRow>
+        </tbody>
+      </table>
     </div>
   </section>
   </body>
   <SearchModal
       v-show="isSearchModalVisable"
       @close="closeSearchModal"
+      @updated="updateTable"
     />
+
 </template>

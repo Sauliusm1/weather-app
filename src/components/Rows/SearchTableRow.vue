@@ -1,9 +1,10 @@
 <script setup lang="ts">
 const props = defineProps(['result'])
+const emit = defineEmits(['updated'])
 function addToStorage(){
     let forecasts: string
-    let storage : string | null
-    let locations :[string[]]
+    let storage: string | null
+    let locations: [string[]]
     let location: string[] = ['','']
     location[0] = props.result.lat
     location[1] = props.result.lon
@@ -17,6 +18,7 @@ function addToStorage(){
     else{
         localStorage.setItem("SavedForecasts",JSON.stringify([location]))
     }
+    emit('updated')
 
 }
 </script>

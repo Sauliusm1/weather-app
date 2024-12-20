@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 import SearchTableRow from './Rows/SearchTableRow.vue';
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'updated']);
 var formData = ref({  text: '',
 selection: ''})
 var searchMode = ref('Name')
@@ -76,7 +76,9 @@ else{
 console.log(formData);
 
 }
-
+function storageUpdated(){
+    emit('updated')
+}
 </script>
 
 <template>
@@ -380,6 +382,7 @@ console.log(formData);
     <tbody>
         <SearchTableRow v-for="(result) in results"
         :result="result"
+        @updated="storageUpdated"
         ></SearchTableRow>
     </tbody>
 </table>
