@@ -17,7 +17,6 @@ var update = computed(()=>{
         updateData(props.location)
         updateCount.value = props.updateCount
     }
-    console.log(props.filter)
     filtered.value = filterSelf(props.filter)
     return 'result'
 })
@@ -49,7 +48,6 @@ function removeFromStorage(index : number){
     }
 }
 function filterSelf(filter : string){
-  console.log(filter)
   filter = filter.toLowerCase()
   if(filter===''){
     return true
