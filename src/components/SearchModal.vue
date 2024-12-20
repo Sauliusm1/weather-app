@@ -376,7 +376,7 @@ function storageUpdated(){
             <th>Country</th>
             <th><abbr title="Lattitude">Lat</abbr></th>
             <th><abbr title="Longitude">Lon</abbr></th>
-            <th></th>
+            <th>Control</th>
         </tr>
     </thead>
     <tbody>
