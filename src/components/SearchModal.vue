@@ -58,7 +58,7 @@ else{
         if(searchMode.value==='Coordinates'){
             //TODO: Better coordinate parsing
             console.log(formData.text)
-            let coordinates: String[]
+            let coordinates: string[]
             coordinates = formData.text.split(" ")
 
             axios({
