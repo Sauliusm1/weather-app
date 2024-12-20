@@ -2,8 +2,8 @@
 import {ref, onMounted } from 'vue';
 import SearchModal from './SearchModal.vue';
 import WeatherTableRow from './Rows/WeatherTableRow.vue';
-const cityName = 'kaunas'
 var locations = ref([['','']])
+var currentFilter = ref('')
 var updateCount = ref(0)
 var autoUpdateCount = ref(0)
 var isSearchModalVisable = ref(false)
@@ -12,7 +12,7 @@ onMounted(() => {
     if(updateCount.value===0){
       console.log("Updated on mount")
       updateTable()
-      setInterval(autoUpdater, 300000);
+      setInterval(autoUpdater, 300000000);
     }
 })
 function showSearchModal(){
@@ -45,11 +45,11 @@ function autoUpdater(){
 
 <template>
 
-  <head>
+  <!-- <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hello Bulma!</title>
-  </head>
+  </head> -->
   <body>
   <section class="section">
     <div class="container">
@@ -57,7 +57,9 @@ function autoUpdater(){
         <button class="button is-primary" @click="showSearchModal">Add Forecast</button>
         <button class="button is-danger" @click="updateTable">Update Table</button>
       </div>
-      
+      <div class="control">
+        <input class="input" v-model="currentFilter">
+      </div>
       <table class="table ">
         <thead>
             <tr>
@@ -74,10 +76,11 @@ function autoUpdater(){
             </tr>
         </thead>
         <tbody>
-          <WeatherTableRow  v-for="(location, index) in locations"
+          <WeatherTableRow v-for="(location, index) in locations"
           :location="location"
           :updateCount="updateCount"
           :index="index"
+          :filter="currentFilter"
           @updated="updateTable">
           </WeatherTableRow>
         </tbody>

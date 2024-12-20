@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { computed, ref } from 'vue';
 const emit = defineEmits(['updated'])
-const props = defineProps(['location', 'updateCount','index'])
+const props = defineProps(['location', 'updateCount','index','filter'])
 var imgLink = ref("https://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png")
 var updateCount = ref(0)
 var result = ref({  name: '',
@@ -11,11 +11,14 @@ var result = ref({  name: '',
                     wind:{speed:''},
                     weather:[{icon:''}]
                 })
+var filtered = ref(true)
 var update = computed(()=>{
     if(props.updateCount > updateCount.value){
         updateData(props.location)
         updateCount.value = props.updateCount
     }
+    console.log(props.filter)
+    filtered.value = filterSelf(props.filter)
     return 'result'
 })
 
@@ -44,11 +47,42 @@ function removeFromStorage(index : number){
         localStorage.setItem("SavedForecasts",JSON.stringify(locations))
         emit('updated')
     }
-
+}
+function filterSelf(filter : string){
+  console.log(filter)
+  filter = filter.toLowerCase()
+  if(filter===''){
+    return true
+  }
+  if(result.value.name.toLowerCase().includes(filter)) {
+    return true
+  }
+  if(result.value.sys.country.toLowerCase().includes(filter)){
+    return true
+  }
+  if(result.value.main.temp.toString().toLowerCase().includes(filter)){
+    return true
+  }
+  if(result.value.main.humidity.toString().toLowerCase().includes(filter)){
+    return true
+  }
+  if(result.value.wind.speed.toString().toLowerCase().includes(filter)){
+    return true
+  }
+  if(result.value.main.pressure.toString().toLowerCase().includes(filter)){
+    return true
+  }
+  if(result.value.sys.sunrise.toString().toLowerCase().includes(filter)){
+    return true
+  }
+  if(result.value.sys.sunset.toString().toLowerCase().includes(filter)){
+    return true
+  }
+  return false
 }
 </script>
 <template>
-<tr class="control has-text-centered" v-if="result.name">
+<tr class="control has-text-centered"  v-if="result.name" v-show="filtered">
     <td class="has-text-centered">{{ result.name }}</td>
     <td>{{ result.sys.country }}</td>
     <td>{{ result.main.temp }}</td>    
