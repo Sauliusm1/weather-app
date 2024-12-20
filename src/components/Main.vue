@@ -5,12 +5,14 @@ import WeatherTableRow from './Rows/WeatherTableRow.vue';
 const cityName = 'kaunas'
 var locations = ref([['','']])
 var updateCount = ref(0)
+var autoUpdateCount = ref(0)
 var isSearchModalVisable = ref(false)
 onMounted(() => {
   console.log(updateCount.value)
     if(updateCount.value===0){
       console.log("Updated on mount")
       updateTable()
+      setInterval(autoUpdater, 300000);
     }
 })
 function showSearchModal(){
@@ -30,7 +32,15 @@ function updateTable(){
     updateCount.value++
   }
 }
-
+function autoUpdater(){
+  if(autoUpdateCount.value === updateCount.value){
+    updateTable()
+    autoUpdateCount.value++
+  }
+  else{
+    autoUpdateCount.value = updateCount.value
+  }
+}
 </script>
 
 <template>
