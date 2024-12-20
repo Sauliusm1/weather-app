@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { computed, ref } from 'vue';
-
-const props = defineProps(['location', 'updateCount'])
+const emit = defineEmits(['updated'])
+const props = defineProps(['location', 'updateCount','index'])
+var imgLink = ref("https://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png")
 var updateCount = ref(0)
 var result = ref({  name: '',
                     sys:{country:'', 'sunrise':'', 'sunset':''},
@@ -26,12 +27,30 @@ function updateData(location: string[]){
 })
   .then(function (response) {
     result.value = response.data
+    imgLink.value =`https://openweathermap.org/img/wn/${result.value.weather[0].icon}@2x.png`
   });
+}
+function removeFromStorage(index : number){
+  let forecasts: string
+    let storage: string | null
+    let locations: [string[]]
+    let location: string[] = ['','']
+    storage =  localStorage.getItem("SavedForecasts")
+    if(typeof storage === 'string'){
+        forecasts = storage
+        locations = JSON.parse(forecasts)
+        location = locations[index]
+        console.log(location)
+        locations.splice(index,1)
+        localStorage.setItem("SavedForecasts",JSON.stringify(locations))
+        emit('updated')
+    }
+
 }
 </script>
 <template>
-<tr class="control" v-if="result.name">
-    <td>{{ result.name }}</td>
+<tr class="control has-text-centered" v-if="result.name">
+    <td class="has-text-centered">{{ result.name }}</td>
     <td>{{ result.sys.country }}</td>
     <td>{{ result.main.temp }}</td>    
     <td>{{ result.main.humidity }}</td>
@@ -39,8 +58,8 @@ function updateData(location: string[]){
     <td>{{ result.main.pressure }}</td>
     <td>{{ result.sys.sunrise }}</td>    
     <td>{{ result.sys.sunset }}</td>
-    <td>{{ result.weather[0].icon }}</td>
-    <!-- <td><button class="button is-success" @click.prevent="addToStorage()">Add location</button></td> -->
+    <td><img :src="imgLink" class="image is-64x64"></td>
+    <td><button class="button is-danger" @click.prevent="removeFromStorage(props.index)">Remove location</button></td>
 </tr>
 <!-- Should never be true, needed to activate the computed function -->
 <div v-if="update!=='result'"></div>

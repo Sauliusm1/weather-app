@@ -67,9 +67,11 @@ function updateTable(){
             </tr>
         </thead>
         <tbody>
-          <WeatherTableRow  v-for="(location) in locations"
+          <WeatherTableRow  v-for="(location, index) in locations"
           :location="location"
-          :updateCount="updateCount">
+          :updateCount="updateCount"
+          :index="index"
+          @updated="updateTable">
           </WeatherTableRow>
         </tbody>
       </table>
