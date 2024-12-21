@@ -61,6 +61,9 @@ function updateTable(){
     locations.value = JSON.parse(storedLocations)
     updateCount.value++
     totalPages.value = Math.ceil(locations.value.length/pageSize.value)
+    if(currentPage.value > totalPages.value){
+      currentPage.value--
+    }
     if(currentPage.value === totalPages.value){
       paginatedLocations.value = locations.value.slice((currentPage.value - 1) * pageSize.value)
     }
@@ -123,8 +126,6 @@ function autoUpdater(){
         </ul>
       </nav>
 
-
-
       <div class="control">
         <input class="input" v-model="currentFilter">
       </div>
@@ -148,6 +149,8 @@ function autoUpdater(){
           :location="location"
           :updateCount="updateCount"
           :index="index"
+          :currentPage="currentPage"
+          :pageSize="pageSize"
           :filter="currentFilter"
           @updated="updateTable">
           </WeatherTableRow>

@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { computed, ref } from 'vue';
 const emit = defineEmits(['updated'])
-const props = defineProps(['location', 'updateCount','index','filter'])
+const props = defineProps(['location', 'updateCount','index','filter','pageSize','currentPage'])
 var imgLink = ref("https://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png")
 var updateCount = ref(0)
 var result = ref({  name: '',
@@ -36,13 +36,11 @@ function removeFromStorage(index : number){
   let forecasts: string
   let storage: string | null
   let locations: [string[]]
-  let location: string[] = ['','']
   storage =  localStorage.getItem("SavedForecasts")
   if(typeof storage === 'string'){
       forecasts = storage
       locations = JSON.parse(forecasts)
-      location = locations[index]
-      locations.splice(index,1)
+      locations.splice((props.currentPage - 1) * props.pageSize+index,1)
       localStorage.setItem("SavedForecasts",JSON.stringify(locations))
       emit('updated')
   }
