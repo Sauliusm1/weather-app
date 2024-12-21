@@ -13,12 +13,12 @@ var result = ref({  name: '',
                 })
 var filtered = ref(true)
 var update = computed(()=>{
-    if(props.updateCount > updateCount.value){
-        updateData(props.location)
-        updateCount.value = props.updateCount
-    }
-    filtered.value = filterSelf(props.filter)
-    return 'result'
+  if(props.updateCount > updateCount.value){
+      updateData(props.location)
+      updateCount.value = props.updateCount
+  }
+  filtered.value = filterSelf(props.filter)
+  return 'result'
 })
 
 function updateData(location: string[]){
@@ -34,18 +34,18 @@ function updateData(location: string[]){
 }
 function removeFromStorage(index : number){
   let forecasts: string
-    let storage: string | null
-    let locations: [string[]]
-    let location: string[] = ['','']
-    storage =  localStorage.getItem("SavedForecasts")
-    if(typeof storage === 'string'){
-        forecasts = storage
-        locations = JSON.parse(forecasts)
-        location = locations[index]
-        locations.splice(index,1)
-        localStorage.setItem("SavedForecasts",JSON.stringify(locations))
-        emit('updated')
-    }
+  let storage: string | null
+  let locations: [string[]]
+  let location: string[] = ['','']
+  storage =  localStorage.getItem("SavedForecasts")
+  if(typeof storage === 'string'){
+      forecasts = storage
+      locations = JSON.parse(forecasts)
+      location = locations[index]
+      locations.splice(index,1)
+      localStorage.setItem("SavedForecasts",JSON.stringify(locations))
+      emit('updated')
+  }
 }
 function filterSelf(filter : string){
   filter = filter.toLowerCase()
