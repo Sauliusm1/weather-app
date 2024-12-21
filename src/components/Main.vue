@@ -14,7 +14,6 @@ var pageSize = ref(10)
 onMounted(() => {
   console.log(updateCount.value)
     if(updateCount.value===0){
-      console.log("Updated on mount")
       updateTable()
       setInterval(autoUpdater, 3000000);
     }
@@ -92,13 +91,13 @@ function autoUpdater(){
       </div>
 
       <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-        <button class="pagination-previous" v-show="currentPage - 1 > 0" @click.prevent="previousPage">Previous page</button>
-        <button href="#" class="pagination-next" v-show="currentPage < totalPages" @click.prevent="nextPage">Next page</button>
+        <button class="pagination-previous" :class="{'is-disabled':currentPage === 1}" @click.prevent="previousPage">Previous page</button>
+        <button class="pagination-next" :class="{'is-disabled':currentPage === totalPages}" @click.prevent="nextPage">Next page</button>
         <ul class="pagination-list">
-          <li v-show="currentPage - 2 > 0">
-            <button href="#" class="pagination-link" aria-label="Goto page 1" @click.prevent="firstPage">1</button>
+          <li>
+            <button class="pagination-link" aria-label="Goto page 1" :class="{'is-disabled':currentPage === 1}" @click.prevent="firstPage">1</button>
           </li>
-          <li v-show="currentPage - 2 > 0">
+          <li>
             <span class="pagination-ellipsis">&hellip;</span>
           </li>
           <li v-show="currentPage - 1 > 0">
@@ -113,13 +112,13 @@ function autoUpdater(){
             >
           </li>
           <li v-show="currentPage < totalPages">
-            <button href="#" class="pagination-link" aria-label="Goto next page" @click.prevent="nextPage">{{ currentPage + 1 }}</button>
+            <button class="pagination-link" aria-label="Goto next page" @click.prevent="nextPage">{{ currentPage + 1 }}</button>
           </li>
-          <li v-show="currentPage + 1 < totalPages">
+          <li>
             <span class="pagination-ellipsis">&hellip;</span>
           </li>
-          <li v-show="currentPage + 1 < totalPages">
-            <button href="#" class="pagination-link" aria-label="Goto last page" @click.prevent="lastPage">{{totalPages}}</button>
+          <li>
+            <button class="pagination-link" aria-label="Goto last page" :class="{'is-disabled':currentPage === totalPages}" @click.prevent="lastPage">{{totalPages}}</button>
           </li>
         </ul>
       </nav>
