@@ -8,11 +8,13 @@ var currentFilter = ref('')
 var updateCount = ref(0)
 var autoUpdateCount = ref(0)
 var isSearchModalVisable = ref(false)
-var currentPage = ref(1)
+var isNotificationVisable = ref(false)
+var notificationMessage = ref('')
+var currentPage = ref(0)
 var totalPages = ref (-1)
 var pageSize = ref(10)
+var notificationTimeoutId = ref(0)
 onMounted(() => {
-  console.log(updateCount.value)
     if(updateCount.value===0){
       updateTable()
       setInterval(autoUpdater, 3000000);
@@ -24,6 +26,17 @@ function showSearchModal(){
 function closeSearchModal(){
   isSearchModalVisable.value = false
 }
+function showNotification(message : string){
+  closeNotification()
+  notificationMessage.value = message
+  isNotificationVisable.value = true
+  notificationTimeoutId.value = setTimeout(closeNotification, 60000)
+}
+function closeNotification(){
+  clearTimeout(notificationTimeoutId.value)
+  isNotificationVisable.value = false
+}
+
 function switchPage(pageNum : number){
     currentPage.value = pageNum
 }
@@ -64,13 +77,17 @@ function updateTable(){
     if(currentPage.value > totalPages.value){
       currentPage.value--
     }
+    if(currentPage.value < 1 && locations.value.length > 0){
+      currentPage.value = 1
+    }
     if(currentPage.value === totalPages.value){
       paginatedLocations.value = locations.value.slice((currentPage.value - 1) * pageSize.value)
     }
     else{
       paginatedLocations.value = locations.value.slice((currentPage.value - 1) * pageSize.value,currentPage.value * pageSize.value)
     }
-}
+    showNotification("Table updated")
+  }
 }
 function autoUpdater(){
   if(autoUpdateCount.value === updateCount.value){
@@ -93,7 +110,7 @@ function autoUpdater(){
         <button class="button is-danger column is-centered" @click="updateTable">Update Table</button>
       </div>
 
-      <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+      <nav class="pagination is-centered" role="navigation" aria-label="pagination" v-show="currentPage>0">
         <button class="pagination-previous" :class="{'is-disabled':currentPage === 1}" @click.prevent="previousPage">Previous page</button>
         <button class="pagination-next" :class="{'is-disabled':currentPage === totalPages}" @click.prevent="nextPage">Next page</button>
         <ul class="pagination-list">
@@ -164,5 +181,9 @@ function autoUpdater(){
       @close="closeSearchModal"
       @updated="updateTable"
     />
+<div v-show="isNotificationVisable" class="notification is-success">
+  <button class="delete" @click.prevent="closeNotification"></button>
+    {{ notificationMessage }}
+</div>
 
 </template>
