@@ -458,7 +458,12 @@ function closeUpdatedMessage(){
             </div>
         </div>
 </form>
+
 <table class="table box" v-show="!isResultsEmpty">
+    <div v-show="isUpdatedVisable" class="notification is-success">
+            <button class="delete" @click.prevent="closeUpdatedMessage"></button>
+            Location saved successfully
+        </div>
     <thead>
         <tr>
             <th>Name</th>
@@ -479,10 +484,7 @@ function closeUpdatedMessage(){
   <button class="delete" @click.prevent="closeError"></button>
     {{ errorMessage }}
 </div>
-<div v-show="isErrorVisable" class="notification is-danger">
-  <button class="delete" @click.prevent="closeUpdatedMessage"></button>
-    Location saved successfully
-</div>
+
 
   </div>
   <button class="modal-close is-large" aria-label="close"  @click="$emit('close')"></button>
