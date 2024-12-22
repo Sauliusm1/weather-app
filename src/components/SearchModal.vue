@@ -457,34 +457,35 @@ function closeUpdatedMessage(){
                 <button class="button is-primary" @click.prevent="handleSubmit(formData)">Search</button>
             </div>
         </div>
-</form>
-
-<table class="table box" v-show="!isResultsEmpty">
-    <div v-show="isUpdatedVisable" class="notification is-success">
+    </form>
+    <div class="box"  v-show="!isResultsEmpty">
+        <div v-show="isUpdatedVisable" class="notification is-success">
             <button class="delete" @click.prevent="closeUpdatedMessage"></button>
             Location saved successfully
         </div>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Country</th>
-            <th><abbr title="Lattitude">Lat</abbr></th>
-            <th><abbr title="Longitude">Lon</abbr></th>
-            <th>Control</th>
-        </tr>
-    </thead>
-    <tbody>
-        <SearchTableRow v-for="(result) in results"
-        :result="result"
-        @updated="storageUpdated"
-        ></SearchTableRow>
-    </tbody>
-</table>
-<div v-show="isErrorVisable" class="notification is-danger">
-  <button class="delete" @click.prevent="closeError"></button>
-    {{ errorMessage }}
-</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Country</th>
+                <th><abbr title="Lattitude">Lat</abbr></th>
+                <th><abbr title="Longitude">Lon</abbr></th>
+                <th>Control</th>
+            </tr>
+        </thead>
+        <tbody>
+            <SearchTableRow v-for="(result) in results"
+            :result="result"
+            @updated="storageUpdated"
+            ></SearchTableRow>
+        </tbody>
+    </table>
+    </div>
 
+    <div v-show="isErrorVisable" class="notification is-danger">
+    <button class="delete" @click.prevent="closeError"></button>
+        {{ errorMessage }}
+    </div>
 
   </div>
   <button class="modal-close is-large" aria-label="close"  @click="$emit('close')"></button>
