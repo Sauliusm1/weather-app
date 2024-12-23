@@ -4,79 +4,200 @@ import axios from 'axios';
 import SearchTableRow from './Rows/SearchTableRow.vue';
 
 const emit = defineEmits(['close', 'updated']);
-var formData = ref({  text: '',
-selection: ''})
+var formData = ref({text: '',
+                    selection: ''})
 var searchMode = ref('Name')
 var results = ref([''])
+var isResultsEmpty = ref(true)
+var isFormSelectionErrorVisable = ref(false)
+var isFormInputErrorVisable = ref(false)
+var formInputErrorMessage = ref('')
+var isErrorVisable = ref(false)
+var errorMessage = ref('')
+var isUpdatedVisable = ref(false)
+
 function setSearchMode(mode: string){
+    clearAllMessages()
     searchMode.value = mode
 }
+function clearAllMessages(){
+    closeFormErrors()
+    closeError()
+    closeUpdatedMessage()
+}
+
 function handleSubmit(formData: { selection: string; text: string; }) {
-if (searchMode.value==='Name'){
-    if(formData.selection===''){
-        axios({
-        method: 'get',
-        url: `https://api.openweathermap.org/geo/1.0/direct?q=${formData.text}&limit=5&appid=${import.meta.env.VITE_API_KEY}`,
-        responseType: 'json'
-    })
-  .then(function (response) {
-    console.log(response.data)
-    results.value = response.data
-  });
+    clearAllMessages()
+    results.value = ['']
+    isResultsEmpty.value = true
+    if (searchMode.value==='Name'){
+        if(formData.text===''){
+            showFormInputError("Required field can not be empty")
+            return
+        }
+        //Country not selected
+        if(formData.selection===''){
+            axios({
+                method: 'get',
+                url: `https://api.openweathermap.org/geo/1.0/direct?q=${formData.text}&limit=5&appid=${import.meta.env.VITE_API_KEY}`,
+                responseType: 'json'
+            })
+            .then(function (response) {
+                results.value = response.data
+                isResultsEmpty.value = false
+                if(results.value.length === 0){
+                    isResultsEmpty.value = true
+                    showError("No locations found")
+                }
+            })            
+            .catch(function (error) {
+                if (error.response) {
+                    if(error.response.status === 400){
+                        console.log(error.response.statusText)
+                        if(error.response.statusText === "Bad Request"){
+                            showError("No locations found")
+                        }
+                        else{
+                            showFormInputError("Required field can not be empty")
+                        }
+                    }
+                    if(error.response.status === 401){
+                        showError("API key error - call limit reached or API key not set up properly")
+                    }
+                }
+            });
+        }
+        //Country is selected
+        else{
+            axios({
+                method: 'get',
+                url: `https://api.openweathermap.org/geo/1.0/direct?q=${formData.text},${formData.selection}&limit=5&appid=${import.meta.env.VITE_API_KEY}`,
+                responseType: 'json'
+            })
+            .then(function (response) {
+                results.value = response.data
+                isResultsEmpty.value = false
+                if(results.value.length === 0){
+                    isResultsEmpty.value = true
+                    showError("No locations found")
+                }
+            })                
+            .catch(function (error) {
+                if (error.response) {
+                    if(error.response.status === 400){
+                        if(error.response.statusText === " Bad Request"){
+                            showError("No locations found")
+                        }
+                        else{
+                            showFormInputError("Required field can not be empty")
+                        }
+                    }
+                    if(error.response.status === 404){
+                        showFormInputError("Required field can not be empty")
+                    }
+                    if(error.response.status === 401){
+                        showError("API key error - call limit reached or API key not set up properly")
+                    }
+                }
+            });
+        }
     }
     else{
-        axios({
-        method: 'get',
-        url: `https://api.openweathermap.org/geo/1.0/direct?q=${formData.text},${formData.selection}&limit=5&appid=${import.meta.env.VITE_API_KEY}`,
-        responseType: 'json'
-    })
-  .then(function (response) {
-    console.log(response.data)
-    results.value = response.data
-  });
-    }
+        if(searchMode.value==='Zip'){
+            if(formData.selection===''){
+                showFormSelectionError()
+            }
+            else{
+                axios({
+                    method: 'get',
+                    url: `https://api.openweathermap.org/geo/1.0/zip?zip=${formData.text},${formData.selection}&appid=${import.meta.env.VITE_API_KEY}`,
+                    responseType: 'json'
+                })
+                .then(function (response) {
+                    results.value = [response.data]
+                    isResultsEmpty.value = false
+                    if(results.value.length === 0){
+                        isResultsEmpty.value = true
+                        showError("No locations found")
+                    }
+                })
+                .catch(function (error) {
+                    if (error.response) {
+                        if(error.response.status === 400){
+                            showFormInputError("Zip code format not recognized")
+                        }
+                        if(error.response.status === 404){
+                            showError("Location not found, please check if the zip code is entered correctly")
+                        }
+                        if(error.response.status === 401){
+                            showError("API key error - call limit reached or API key not set up properly")
+                        }   
+                    }
 
-}
-else{
-    if(searchMode.value==='Zip'){
-        if(formData.selection===''){
-            //TODO:error message
+                });
+            }
         }
         else{
-        axios({
-          method: 'get',
-          url: `https://api.openweathermap.org/geo/1.0/zip?zip=${formData.text},${formData.selection}&appid=${import.meta.env.VITE_API_KEY}`,
-          responseType: 'json'
-        })
-          .then(function (response) {
-            console.log(response.data)
-            results.value = [response.data]
-          });
+            if(searchMode.value==='Coordinates'){
+                let coordinates: string[]
+                coordinates = formData.text.split(" ")
+                axios({
+                    method: 'get',
+                    url: `https://api.openweathermap.org/geo/1.0/reverse?lat=${coordinates[0]}&lon=${coordinates[1]}&limit=5&appid=${import.meta.env.VITE_API_KEY}`,
+                    responseType: 'json'
+                })
+                .then(function (response) {
+                    results.value = response.data
+                    isResultsEmpty.value = false
+                    if(results.value.length === 0){
+                        isResultsEmpty.value = true
+                        showError("No locations found")
+                    }
+                })
+                .catch(function (error) {
+                    if (error.response) {
+                        if(error.response.status === 400){
+                            showFormInputError("Coordinates should have a space and no separators (Limited at &plusmn;90 &plusmn;180)")
+                        }
+                        if(error.response.status === 404){
+                            showError("Location not found, please check if the coordinates are entered correctly")
+                        }
+                        if(error.response.status === 401){
+                            showError("API key error - call limit reached or API key not set up properly")
+                        }
+                    }
+                });
+            }
         }
-    }
-    else{
-        if(searchMode.value==='Coordinates'){
-            //TODO: Better coordinate parsing
-
-            let coordinates: string[]
-            coordinates = formData.text.split(" ")
-
-            axios({
-          method: 'get',
-          url: `https://api.openweathermap.org/geo/1.0/reverse?lat=${coordinates[0]}&lon=${coordinates[1]}&limit=5&appid=${import.meta.env.VITE_API_KEY}`,
-          responseType: 'json'
-        })
-          .then(function (response) {
-            console.log(response.data)
-            results.value = response.data
-          });
-        }
-    }
+    }   
 }
 
+function showFormSelectionError(){
+    isFormSelectionErrorVisable.value = true
 }
+function showFormInputError(message : string){
+    isFormInputErrorVisable.value = true
+    formInputErrorMessage.value = message
+}
+function closeFormErrors(){
+    isFormSelectionErrorVisable.value = false
+    isFormInputErrorVisable.value = false
+}
+
+function showError(message: string){
+    isErrorVisable.value = true
+    errorMessage.value = (message)
+}
+function closeError(){
+    isErrorVisable.value = false
+}
+//Sending a signal to the parent to update the table
 function storageUpdated(){
     emit('updated')
+    isUpdatedVisable.value = true
+}
+function closeUpdatedMessage(){
+    isUpdatedVisable.value = false
 }
 </script>
 
@@ -84,6 +205,7 @@ function storageUpdated(){
 <div class="modal is-active">
   <div class="modal-background"  @click="$emit('close')"></div>
   <div class="modal-content">
+   
     <form class="box">
         <div class="field is-grouped">
             <label class="label">Search by:</label>
@@ -99,14 +221,15 @@ function storageUpdated(){
         </div>
         <div class="field is-grouped">
             <div class="control">
-                <label class="label">{{(searchMode==='Name')?'Location name': ((searchMode==='Zip')?'Zip code':'Coordinates')}}</label>
-                <input class="input" type="text" placeholder="Text input"  v-model="formData.text">
+                <label class="label">{{(searchMode==='Name')?'Location name': ((searchMode==='Zip')?'Zip code':'Coordinates')}} (required)</label>
+                <input class="input" type="text" placeholder="Text input"  v-model="formData.text" :class="{'is-danger':isFormInputErrorVisable}">
+                <p class="help is-danger" v-show="isFormInputErrorVisable">{{ formInputErrorMessage }}</p>
             </div>
 
             <div class="control" v-show="searchMode!=='Coordinates'">
                 <label class="label">Country  {{ (searchMode==='Name')?'(optional)':'(required)' }}</label>
-                <div class="select">
-                    <select v-model="formData.selection">
+                <div class="select" :class="{'is-danger':isFormSelectionErrorVisable}">
+                    <select v-model="formData.selection" >
                         <option value="" label="Select a country ... ">Select a country ... </option>
                         <option value="AF">Afghanistan</option>
                         <option value="AX">Åland Islands</option>
@@ -358,8 +481,8 @@ function storageUpdated(){
                         <option value="ZM">Zambia</option>
                         <option value="ZW">Zimbabwe</option>
                     </select>
-
                 </div>
+                <p class="help is-danger" v-show="isFormSelectionErrorVisable">Country is required</p>
             </div>
         </div>
         <div class="field">
@@ -367,24 +490,37 @@ function storageUpdated(){
                 <button class="button is-primary" @click.prevent="handleSubmit(formData)">Search</button>
             </div>
         </div>
-</form>
-<table class="table box">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Country</th>
-            <th><abbr title="Lattitude">Lat</abbr></th>
-            <th><abbr title="Longitude">Lon</abbr></th>
-            <th>Control</th>
-        </tr>
-    </thead>
-    <tbody>
-        <SearchTableRow v-for="(result) in results"
-        :result="result"
-        @updated="storageUpdated"
-        ></SearchTableRow>
-    </tbody>
-</table>
+    </form>
+
+    <div class="box"  v-show="!isResultsEmpty">
+        <div v-show="isUpdatedVisable" class="notification is-success">
+            <button class="delete" @click.prevent="closeUpdatedMessage"></button>
+            Location saved successfully
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Country</th>
+                    <th><abbr title="Lattitude">Lat</abbr></th>
+                    <th><abbr title="Longitude">Lon</abbr></th>
+                    <th>Control</th>
+                </tr>
+            </thead>
+            <tbody>
+                <SearchTableRow v-for="(result) in results"
+                :result="result"
+                @updated="storageUpdated"
+                ></SearchTableRow>
+            </tbody>
+        </table>
+    </div>
+
+    <div v-show="isErrorVisable" class="notification is-danger">
+    <button class="delete" @click.prevent="closeError"></button>
+        {{ errorMessage }}
+    </div>
+
   </div>
   <button class="modal-close is-large" aria-label="close"  @click="$emit('close')"></button>
 </div>
