@@ -111,7 +111,6 @@ function autoUpdater(){
     <div class="container">
       <div class="columns">
         <button class="button is-primary column is-fullwitdh" @click="showSearchModal">Add Forecast</button>
-        <button class="button is-danger column is-centered" @click="updateTable">Update Table</button>
       </div>
 
       <nav class="pagination is-centered" role="navigation" aria-label="pagination" v-show="currentPage>0">
