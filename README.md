@@ -2,6 +2,10 @@
 
 ## Project Setup
 
+``` sh
+git clone https://github.com/Sauliusm1/weather-app.git
+```
+
 ```sh
 npm install
 ```
@@ -29,7 +33,7 @@ npm install --global http-server
 ```sh
 http-server [path]
 ```
-ex.
+for example:
 ```sh
 http-server dist
 ```
