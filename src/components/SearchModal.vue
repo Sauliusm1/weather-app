@@ -31,6 +31,10 @@ function handleSubmit(formData: { selection: string; text: string; }) {
     results.value = ['']
     isResultsEmpty.value = true
     if (searchMode.value==='Name'){
+        if(formData.text===''){
+            showFormInputError("Required field can not be empty")
+            return
+        }
         if(formData.selection===''){
             axios({
                 method: 'get',
@@ -48,7 +52,16 @@ function handleSubmit(formData: { selection: string; text: string; }) {
             .catch(function (error) {
                 if (error.response) {
                     if(error.response.status === 400){
-                        showFormInputError("Required field can not be empty")
+                        console.log(error.response.statusText)
+                        if(error.response.statusText === "Bad Request"){
+                            showError("No locations found")
+                        }
+                        else{
+                            showFormInputError("Required field can not be empty")
+                        }
+                    }
+                    if(error.response.status === 401){
+                        showError("API key error - call limit reached or API key not set up properly")
                     }
                 }
             });
@@ -70,7 +83,18 @@ function handleSubmit(formData: { selection: string; text: string; }) {
             .catch(function (error) {
                 if (error.response) {
                     if(error.response.status === 400){
+                        if(error.response.statusText === " Bad Request"){
+                            showError("No locations found")
+                        }
+                        else{
+                            showFormInputError("Required field can not be empty")
+                        }
+                    }
+                    if(error.response.status === 404){
                         showFormInputError("Required field can not be empty")
+                    }
+                    if(error.response.status === 401){
+                        showError("API key error - call limit reached or API key not set up properly")
                     }
                 }
             });
@@ -103,6 +127,9 @@ function handleSubmit(formData: { selection: string; text: string; }) {
                         if(error.response.status === 404){
                             showError("Location not found, please check if the zip code is entered correctly")
                         }
+                        if(error.response.status === 401){
+                            showError("API key error - call limit reached or API key not set up properly")
+                        }   
                     }
 
                 });
@@ -132,6 +159,9 @@ function handleSubmit(formData: { selection: string; text: string; }) {
                         }
                         if(error.response.status === 404){
                             showError("Location not found, please check if the coordinates are entered correctly")
+                        }
+                        if(error.response.status === 401){
+                            showError("API key error - call limit reached or API key not set up properly")
                         }
                     }
                 });
@@ -173,6 +203,7 @@ function closeUpdatedMessage(){
 <div class="modal is-active">
   <div class="modal-background"  @click="$emit('close')"></div>
   <div class="modal-content">
+   
     <form class="box">
         <div class="field is-grouped">
             <label class="label">Search by:</label>
@@ -188,7 +219,7 @@ function closeUpdatedMessage(){
         </div>
         <div class="field is-grouped">
             <div class="control">
-                <label class="label">{{(searchMode==='Name')?'Location name': ((searchMode==='Zip')?'Zip code':'Coordinates')}}</label>
+                <label class="label">{{(searchMode==='Name')?'Location name': ((searchMode==='Zip')?'Zip code':'Coordinates')}} (required)</label>
                 <input class="input" type="text" placeholder="Text input"  v-model="formData.text" :class="{'is-danger':isFormInputErrorVisable}">
                 <p class="help is-danger" v-show="isFormInputErrorVisable">{{ formInputErrorMessage }}</p>
             </div>
@@ -458,6 +489,7 @@ function closeUpdatedMessage(){
             </div>
         </div>
     </form>
+
     <div class="box"  v-show="!isResultsEmpty">
         <div v-show="isUpdatedVisable" class="notification is-success">
             <button class="delete" @click.prevent="closeUpdatedMessage"></button>
