@@ -12,7 +12,9 @@ var result = ref({  name: '',
                     weather:[{icon:''}]
                 })
 var filtered = ref(true)
+//Gets triggered everytime props change
 var update = computed(()=>{
+  //Only update the data when the parent requests an update
   if(props.updateCount > updateCount.value){
       updateData(props.location)
       updateCount.value = props.updateCount
@@ -20,18 +22,19 @@ var update = computed(()=>{
   filtered.value = filterSelf(props.filter)
   return 'result'
 })
-
+//Calls the API to get refreshed data
 function updateData(location: string[]){
-    axios({
-  method: 'get',
-  url: `https://api.openweathermap.org/data/2.5/weather?lat=${location[0]}&lon=${location[1]}&appid=${import.meta.env.VITE_API_KEY}&units=metric`,
-  responseType: 'json'
-})
+  axios({
+    method: 'get',
+    url: `https://api.openweathermap.org/data/2.5/weather?lat=${location[0]}&lon=${location[1]}&appid=${import.meta.env.VITE_API_KEY}&units=metric`,
+    responseType: 'json'
+  })
   .then(function (response) {
     result.value = response.data
     imgLink.value =`https://openweathermap.org/img/wn/${result.value.weather[0].icon}@2x.png`
   });
 }
+//Function that gets called when the remove location button is pressed
 function removeFromStorage(index : number){
   let forecasts: string
   let storage: string | null
@@ -45,6 +48,7 @@ function removeFromStorage(index : number){
       emit('updated')
   }
 }
+//Checks if any of the location results contain the filter 
 function filterSelf(filter : string){
   filter = filter.toLowerCase()
   if(filter===''){

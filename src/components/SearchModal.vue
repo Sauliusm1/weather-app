@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import axios from 'axios';
 import SearchTableRow from './Rows/SearchTableRow.vue';
 
@@ -35,6 +35,7 @@ function handleSubmit(formData: { selection: string; text: string; }) {
             showFormInputError("Required field can not be empty")
             return
         }
+        //Country not selected
         if(formData.selection===''){
             axios({
                 method: 'get',
@@ -66,6 +67,7 @@ function handleSubmit(formData: { selection: string; text: string; }) {
                 }
             });
         }
+        //Country is selected
         else{
             axios({
                 method: 'get',
@@ -189,7 +191,7 @@ function showError(message: string){
 function closeError(){
     isErrorVisable.value = false
 }
-
+//Sending a signal to the parent to update the table
 function storageUpdated(){
     emit('updated')
     isUpdatedVisable.value = true
@@ -495,23 +497,23 @@ function closeUpdatedMessage(){
             <button class="delete" @click.prevent="closeUpdatedMessage"></button>
             Location saved successfully
         </div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Country</th>
-                <th><abbr title="Lattitude">Lat</abbr></th>
-                <th><abbr title="Longitude">Lon</abbr></th>
-                <th>Control</th>
-            </tr>
-        </thead>
-        <tbody>
-            <SearchTableRow v-for="(result) in results"
-            :result="result"
-            @updated="storageUpdated"
-            ></SearchTableRow>
-        </tbody>
-    </table>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Country</th>
+                    <th><abbr title="Lattitude">Lat</abbr></th>
+                    <th><abbr title="Longitude">Lon</abbr></th>
+                    <th>Control</th>
+                </tr>
+            </thead>
+            <tbody>
+                <SearchTableRow v-for="(result) in results"
+                :result="result"
+                @updated="storageUpdated"
+                ></SearchTableRow>
+            </tbody>
+        </table>
     </div>
 
     <div v-show="isErrorVisable" class="notification is-danger">

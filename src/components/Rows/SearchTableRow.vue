@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps(['result'])
 const emit = defineEmits(['updated'])
+//Function that gets called when the add location button is pressed
 function addToStorage(){
     let forecasts: string
     let storage: string | null
@@ -9,6 +10,7 @@ function addToStorage(){
     location[0] = props.result.lat
     location[1] = props.result.lon
     storage =  localStorage.getItem("SavedForecasts")
+    //If storage exists add the location to the array
     if(typeof storage === 'string'){
         forecasts = storage
         locations = JSON.parse(forecasts)
@@ -16,8 +18,10 @@ function addToStorage(){
         localStorage.setItem("SavedForecasts",JSON.stringify(locations))
     }
     else{
+        //If storage does not exist - make a new array
         localStorage.setItem("SavedForecasts",JSON.stringify([location]))
     }
+    //Send update notification to parent
     emit('updated')
 
 }

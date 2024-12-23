@@ -10,10 +10,12 @@ var autoUpdateCount = ref(0)
 var isSearchModalVisable = ref(false)
 var isNotificationVisable = ref(false)
 var notificationMessage = ref('')
+var notificationTimeoutId = ref(0)
+//Pagination variables
 var currentPage = ref(0)
 var totalPages = ref (-1)
 var pageSize = ref(10)
-var notificationTimeoutId = ref(0)
+//Called once the site is opened
 onMounted(() => {
     if(updateCount.value===0){
       updateTable()
@@ -64,6 +66,7 @@ function lastPage(){
     updateTable()
   }
 }
+//Updates pagination and changes the shown locations as needed
 function updateTable(){
   let storage: string | null
   let storedLocations: string
@@ -89,6 +92,8 @@ function updateTable(){
     showNotification("Table updated")
   }
 }
+//Calls updateTable if there has not been a recent manually caused update
+//If it has, skips the current automatic update
 function autoUpdater(){
   if(autoUpdateCount.value === updateCount.value){
     updateTable()
@@ -101,8 +106,7 @@ function autoUpdater(){
 </script>
 
 <template>
-
-  <body>
+<body>
   <section class="section">
     <div class="container">
       <div class="columns">
@@ -175,12 +179,13 @@ function autoUpdater(){
       </table>
     </div>
   </section>
-  </body>
-  <SearchModal
-      v-show="isSearchModalVisable"
-      @close="closeSearchModal"
-      @updated="updateTable"
-    />
+</body>
+<SearchModal
+  v-show="isSearchModalVisable"
+  @close="closeSearchModal"
+  @updated="updateTable"
+/>
+
 <div v-show="isNotificationVisable" class="notification is-success">
   <button class="delete" @click.prevent="closeNotification"></button>
     {{ notificationMessage }}
